@@ -14,28 +14,42 @@ body {
   text-align: center;
   margin: 0;
   padding: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  transition: background-color 0.3s;
 }
 
-/* LOGIN SCREEN */
+/* Overlay when logo background is set */
+body.has-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.78);
+  z-index: -1;
+}
+
+/* ============== LOGIN SCREEN ============== */
 #loginScreen {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
   padding: 20px;
+  position: relative;
+  z-index: 1;
 }
 .login-box {
-  background: #1e1e1e;
+  background: rgba(30,30,30,0.95);
   padding: 35px 25px;
   border-radius: 16px;
   width: 100%;
   max-width: 360px;
   box-shadow: 0 0 25px rgba(0,200,0,0.2);
 }
-.login-box h2 {
-  margin: 0 0 25px;
-  color: #00d400;
-}
+.login-box h2 { margin: 0 0 25px; color: #00d400; }
 .login-box input {
   width: 100%;
   padding: 14px;
@@ -59,19 +73,14 @@ body {
   cursor: pointer;
 }
 .login-box button:active { background: #006600; }
-#loginError {
-  color: #ff4444;
-  margin-top: 10px;
-  min-height: 20px;
-  font-size: 14px;
-}
+#loginError { color: #ff4444; margin-top: 10px; min-height: 20px; font-size: 14px; }
 
-/* DASHBOARD */
-#dashboard { display: none; padding-bottom: 40px; }
+/* ============== DASHBOARD ============== */
+#dashboard { display: none; padding-bottom: 40px; position: relative; z-index: 1; }
 
 .header {
-  background: #1a1a1a;
-  padding: 12px;
+  background: rgba(26,26,26,0.92);
+  padding: 10px 14px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -79,37 +88,57 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
+  backdrop-filter: blur(6px);
 }
-.header h2 { margin: 0; font-size: 18px; }
-.header-btns button {
+.header h2 {
+  margin: 0;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.header h2 svg { width: 26px; height: 26px; }
+
+.settings-icon {
   background: #333;
   color: white;
   border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  margin-left: 6px;
-  font-size: 13px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  font-size: 19px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.2s;
 }
-.header-btns button:active { background: #555; }
-.header-btns .logout { background: #cc0000; }
+.settings-icon:active { background: #00b300; }
 
-/* DEVICE TABS */
+.header-right { width: 38px; }
+
+/* ============== DEVICE TABS ============== */
 .tabs {
   display: flex;
   overflow-x: auto;
-  background: #1a1a1a;
+  background: rgba(26,26,26,0.92);
   padding: 8px;
   gap: 6px;
+  backdrop-filter: blur(6px);
 }
+.tabs:empty { display: none; }
 .tab {
-  padding: 8px 16px;
+  padding: 8px 14px 8px 10px;
   background: #333;
   border-radius: 20px;
   font-size: 13px;
   white-space: nowrap;
   cursor: pointer;
   border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .tab.active {
   background: #00b300;
@@ -121,13 +150,23 @@ body {
   height: 8px;
   border-radius: 50%;
   background: red;
-  margin-right: 6px;
+  flex-shrink: 0;
 }
 .tab .dot.online { background: lime; }
+.tab .motor-icon { width: 16px; height: 16px; flex-shrink: 0; }
 
-/* DEVICE PANEL */
+/* ============== DEVICE PANEL ============== */
 .panel { padding: 15px; }
-.panel h3 { margin: 5px 0 15px; color: #00d400; }
+.panel h3 {
+  margin: 5px 0 15px;
+  color: #00d400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 17px;
+}
+.panel h3 .motor-icon { width: 24px; height: 24px; }
 .esp-line { margin-bottom: 15px; font-size: 15px; }
 
 .status {
@@ -168,7 +207,26 @@ body {
 .low  { background: #006600; }
 .wait { background: #444; }
 
-/* SETTINGS MODAL */
+/* ============== EMPTY STATE ============== */
+.empty-state {
+  padding: 60px 20px;
+  color: #888;
+}
+.empty-state .motor-big { width: 80px; height: 80px; opacity: 0.4; margin-bottom: 20px; }
+.empty-state p { font-size: 16px; margin: 10px 0; }
+.empty-state .add-btn {
+  margin-top: 20px;
+  padding: 12px 28px;
+  background: #00b300;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* ============== SETTINGS MODAL ============== */
 .modal {
   display: none;
   position: fixed;
@@ -182,35 +240,95 @@ body {
 .modal.show { display: flex; }
 .modal-box {
   background: #1e1e1e;
-  padding: 25px;
+  padding: 22px;
   border-radius: 16px;
   width: 100%;
-  max-width: 380px;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+  text-align: left;
 }
-.modal-box h3 { margin: 0 0 18px; color: #00d400; }
-.modal-box label { display: block; text-align: left; font-size: 13px; margin: 10px 0 4px; color: #aaa; }
-.modal-box input {
+.modal-box h3 {
+  margin: 0 0 18px;
+  color: #00d400;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+}
+.modal-box h3 .close-x {
+  background: #333;
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.section {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid #333;
+}
+.section-title {
+  color: #00d400;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  display: block;
+}
+.modal-box label { display: block; font-size: 13px; margin: 10px 0 4px; color: #aaa; }
+.modal-box input[type="text"],
+.modal-box input[type="file"] {
   width: 100%;
-  padding: 12px;
+  padding: 11px;
   border-radius: 8px;
   border: 1px solid #444;
   background: #2a2a2a;
   color: white;
-  font-size: 15px;
+  font-size: 14px;
 }
-.modal-box .row { display: flex; gap: 10px; margin-top: 18px; }
-.modal-box .row button {
+.modal-box input[type="file"] { padding: 8px; font-size: 13px; }
+.row { display: flex; gap: 10px; margin-top: 14px; }
+.row button {
   flex: 1;
-  padding: 12px;
+  padding: 11px;
   border-radius: 8px;
   border: none;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
   cursor: pointer;
   color: white;
 }
 .save-btn { background: #00b300; }
 .cancel-btn { background: #555; }
+.danger-btn { background: #cc0000; width: 100%; padding: 12px; border-radius: 8px; border: none; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 14px; }
+
+/* Theme swatches */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 6px;
+}
+.theme-swatch {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  position: relative;
+}
+.theme-swatch.active { border-color: #00ff00; box-shadow: 0 0 12px rgba(0,255,0,0.4); }
+.theme-swatch span {
+  position: absolute;
+  bottom: 4px;
+  left: 0; right: 0;
+  font-size: 9px;
+  text-align: center;
+  color: white;
+  text-shadow: 0 1px 3px black;
+}
 
 .device-list-item {
   display: flex;
@@ -231,12 +349,13 @@ body {
   font-size: 12px;
   cursor: pointer;
 }
+.empty-list { color: #666; font-size: 13px; padding: 10px 0; text-align: center; }
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- ================= LOGIN SCREEN ================= -->
 <div id="loginScreen">
   <div class="login-box">
     <h2>🔐 Login</h2>
@@ -247,33 +366,66 @@ body {
   </div>
 </div>
 
-<!-- DASHBOARD -->
+<!-- ================= DASHBOARD ================= -->
 <div id="dashboard">
   <div class="header">
-    <h2>⚡ My-Motor</h2>
-    <div class="header-btns">
-      <button onclick="openSettings()">⚙️ Settings</button>
-      <button class="logout" onclick="doLogout()">Logout</button>
-    </div>
+    <button class="settings-icon" onclick="openSettings()" title="Settings">⚙️</button>
+    <h2>
+      <!-- PUMP/MOTOR ICON (replaced voltage/lightning) -->
+      <svg class="motor-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="8" stroke="#00d400" stroke-width="2"/>
+        <circle cx="12" cy="12" r="3" fill="#00d400"/>
+        <path d="M12 4 L12 1 M12 23 L12 20 M4 12 L1 12 M23 12 L20 12" stroke="#00d400" stroke-width="2" stroke-linecap="round"/>
+        <path d="M6.5 6.5 L4.4 4.4 M19.6 19.6 L17.5 17.5 M6.5 17.5 L4.4 19.6 M19.6 4.4 L17.5 6.5" stroke="#00d400" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      My-Motor
+    </h2>
+    <div class="header-right"></div>
   </div>
 
   <div class="tabs" id="tabs"></div>
   <div id="panels"></div>
 </div>
 
-<!-- SETTINGS MODAL -->
+<!-- ================= SETTINGS MODAL ================= -->
 <div class="modal" id="settingsModal">
   <div class="modal-box">
-    <h3>⚙️ Device Settings</h3>
-    <label>Add / Update Device Unique ID</label>
+    <h3>
+      ⚙️ Settings
+      <button class="close-x" onclick="closeSettings()">✕</button>
+    </h3>
+
+    <!-- ---- DEVICE MANAGEMENT ---- -->
+    <span class="section-title">📟 Device Management</span>
+    <label>Add Device by Unique ID</label>
     <input type="text" id="newDeviceId" placeholder="e.g. naim02" autocomplete="off">
     <div class="row">
       <button class="cancel-btn" onclick="closeSettings()">Cancel</button>
       <button class="save-btn" onclick="addDevice()">Add Device</button>
     </div>
 
-    <label style="margin-top:22px;">Saved Devices</label>
+    <label style="margin-top:16px;">Saved Devices</label>
     <div id="deviceList"></div>
+
+    <!-- ---- THEME ---- -->
+    <div class="section">
+      <span class="section-title">🎨 Theme</span>
+      <label>Choose Color Theme</label>
+      <div class="theme-grid" id="themeGrid"></div>
+    </div>
+
+    <!-- ---- BACKGROUND LOGO ---- -->
+    <div class="section">
+      <span class="section-title">🖼️ Background Logo</span>
+      <label>Upload Custom Background Image</label>
+      <input type="file" id="bgUpload" accept="image/*" onchange="uploadBg(event)">
+      <button class="danger-btn" onclick="removeBg()">🗑️ Remove Background</button>
+    </div>
+
+    <!-- ---- LOGOUT ---- -->
+    <div class="section">
+      <button class="danger-btn" onclick="doLogout()">🚪 Logout</button>
+    </div>
   </div>
 </div>
 
@@ -282,12 +434,93 @@ body {
 const LOGIN_USER = "Naim";
 const LOGIN_PASS = "12345678";
 const STORAGE_KEY = "mymotor_devices";
+const THEME_KEY   = "mymotor_theme";
+const BG_KEY      = "mymotor_bg";
 
 /* ================= STATE ================= */
-let devices = [];               // array of device ids
-let deviceStates = {};          // { id: { online, in1, in2, in3 } }
+let devices = [];
+let deviceStates = {};
 let activeDevice = null;
 let client = null;
+
+/* ================= THEMES ================= */
+const THEMES = {
+  green:  { name: "Green",  primary: "#00b300", light: "#00d400", dark: "#006600", bg: "#111111" },
+  blue:   { name: "Blue",   primary: "#0077cc", light: "#00aaff", dark: "#004d80", bg: "#0a1420" },
+  red:    { name: "Red",    primary: "#cc0000", light: "#ff3333", dark: "#800000", bg: "#160808" },
+  purple: { name: "Purple", primary: "#7a1fbf", light: "#a64dff", dark: "#4d1280", bg: "#120818" },
+  orange: { name: "Orange", primary: "#e67300", light: "#ff9933", dark: "#994d00", bg: "#180e04" },
+  cyan:   { name: "Cyan",   primary: "#009999", light: "#00cccc", dark: "#006666", bg: "#041414" },
+  pink:   { name: "Pink",   primary: "#cc3399", light: "#ff66cc", dark: "#801f66", bg: "#160810" },
+  dark:   { name: "Dark",   primary: "#666666", light: "#999999", dark: "#333333", bg: "#0a0a0a" }
+};
+
+/* ================= MOTOR SVG (Reusable) ================= */
+const MOTOR_SVG = (color, size = 16) => `
+  <svg class="motor-icon" style="width:${size}px;height:${size}px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="8" stroke="${color}" stroke-width="2"/>
+    <circle cx="12" cy="12" r="3" fill="${color}"/>
+    <path d="M12 4 L12 1 M12 23 L12 20 M4 12 L1 12 M23 12 L20 12" stroke="${color}" stroke-width="2" stroke-linecap="round"/>
+    <path d="M6.5 6.5 L4.4 4.4 M19.6 19.6 L17.5 17.5 M6.5 17.5 L4.4 19.6 M19.6 4.4 L17.5 6.5" stroke="${color}" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>
+`;
+
+/* ================= THEME APPLICATION ================= */
+function applyTheme(key) {
+  const t = THEMES[key] || THEMES.green;
+  document.documentElement.style.setProperty("--primary", t.primary);
+  document.documentElement.style.setProperty("--light", t.light);
+  document.documentElement.style.setProperty("--dark", t.dark);
+  document.body.style.background = t.bg;
+  localStorage.setItem(THEME_KEY, key);
+
+  // Apply dynamically
+  document.querySelectorAll(".green").forEach(el => el.style.background = t.primary);
+  document.querySelectorAll(".redbtn").forEach(el => el.style.background = "#cc0000");
+  document.querySelectorAll(".save-btn, .empty-state .add-btn, .login-box button").forEach(el => el.style.background = t.primary);
+  document.querySelectorAll(".tab.active").forEach(el => { el.style.background = t.primary; });
+  document.querySelectorAll(".header").forEach(el => el.style.borderBottomColor = t.primary);
+  document.querySelectorAll(".panel h3, .modal-box h3, .section-title, .login-box h2").forEach(el => el.style.color = t.light);
+  document.querySelectorAll(".header h2 svg").forEach(el => el.innerHTML = MOTOR_SVG(t.light, 26).replace('class="motor-icon"','').trim());
+
+  renderTabs();
+  renderPanels();
+  renderThemeGrid();
+}
+
+/* ================= BACKGROUND ================= */
+function applyBg(dataUrl) {
+  if (dataUrl) {
+    document.body.style.backgroundImage = `url(${dataUrl})`;
+    document.body.classList.add("has-bg");
+  } else {
+    document.body.style.backgroundImage = "none";
+    document.body.classList.remove("has-bg");
+  }
+}
+
+function uploadBg(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 3 * 1024 * 1024) return alert("ছবি ৩MB এর কম হতে হবে");
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const dataUrl = ev.target.result;
+    try {
+      localStorage.setItem(BG_KEY, dataUrl);
+      applyBg(dataUrl);
+    } catch (err) {
+      alert("ছবি সাইজ বেশি বড় — localStorage এ save হলো না");
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeBg() {
+  localStorage.removeItem(BG_KEY);
+  applyBg(null);
+  document.getElementById("bgUpload").value = "";
+}
 
 /* ================= LOGIN ================= */
 function doLogin() {
@@ -308,8 +541,13 @@ function doLogout() {
   location.reload();
 }
 
-/* Auto-login if session exists */
 window.addEventListener("load", () => {
+  // Load theme + bg BEFORE login
+  const savedTheme = localStorage.getItem(THEME_KEY) || "green";
+  const savedBg = localStorage.getItem(BG_KEY);
+  applyTheme(savedTheme);
+  applyBg(savedBg);
+
   if (sessionStorage.getItem("mymotor_logged") === "1") {
     document.getElementById("loginScreen").style.display = "none";
     document.getElementById("dashboard").style.display = "block";
@@ -322,9 +560,9 @@ window.addEventListener("load", () => {
 
 /* ================= DEVICE MANAGEMENT ================= */
 function loadDevices() {
+  // 🔴 NO DEFAULT DEVICE — starts blank
   const raw = localStorage.getItem(STORAGE_KEY);
-  devices = raw ? JSON.parse(raw) : ["naim02"];
-  if (!devices.includes("naim02")) devices.unshift("naim02");
+  devices = raw ? JSON.parse(raw) : [];
 }
 
 function saveDevices() {
@@ -338,9 +576,13 @@ function addDevice() {
   if (devices.includes(id)) return alert("এই Device আগে থেকেই আছে");
 
   devices.push(id);
+  deviceStates[id] = { online: false, in1: null, in2: null, in3: null };
   saveDevices();
   subscribeDevice(id);
   document.getElementById("newDeviceId").value = "";
+
+  if (!activeDevice) activeDevice = id;
+
   renderTabs();
   renderPanels();
   renderDeviceList();
@@ -349,6 +591,7 @@ function addDevice() {
 function removeDevice(id) {
   if (!confirm(`"${id}" ডিভাইসটি মুছে ফেলবেন?`)) return;
   devices = devices.filter(d => d !== id);
+  delete deviceStates[id];
   saveDevices();
   if (activeDevice === id) activeDevice = devices[0] || null;
   renderTabs();
@@ -358,6 +601,10 @@ function removeDevice(id) {
 
 function renderDeviceList() {
   const list = document.getElementById("deviceList");
+  if (devices.length === 0) {
+    list.innerHTML = `<div class="empty-list">এখনো কোনো ডিভাইস যোগ করা হয়নি</div>`;
+    return;
+  }
   list.innerHTML = devices.map(id => `
     <div class="device-list-item">
       <span>${id}</span>
@@ -370,9 +617,9 @@ function renderDeviceList() {
 function initDashboard() {
   loadDevices();
   devices.forEach(id => {
-    deviceStates[id] = { online: false, in1: null, in2: null, in3: null };
+    if (!deviceStates[id]) deviceStates[id] = { online: false, in1: null, in2: null, in3: null };
   });
-  activeDevice = devices[0];
+  activeDevice = devices[0] || null;
   renderTabs();
   renderPanels();
   renderDeviceList();
@@ -388,6 +635,7 @@ function connectMQTT() {
 
   client.on("close", () => {
     devices.forEach(id => {
+      if (!deviceStates[id]) return;
       deviceStates[id].online = false;
       deviceStates[id].in1 = null;
       deviceStates[id].in2 = null;
@@ -406,9 +654,7 @@ function connectMQTT() {
 
     if (!deviceStates[devId]) return;
 
-    if (channel === "status") {
-      deviceStates[devId].online = (msg === "ONLINE");
-    }
+    if (channel === "status") deviceStates[devId].online = (msg === "ONLINE");
     else if (channel === "input1") deviceStates[devId].in1 = msg;
     else if (channel === "input2") deviceStates[devId].in2 = msg;
     else if (channel === "input3") deviceStates[devId].in3 = msg;
@@ -433,9 +679,11 @@ function send(deviceId, relay) {
 /* ================= UI RENDER ================= */
 function renderTabs() {
   const tabs = document.getElementById("tabs");
+  const themeColor = getComputedStyle(document.documentElement).getPropertyValue('--light').trim() || "#00d400";
   tabs.innerHTML = devices.map(id => {
     const online = deviceStates[id]?.online;
     return `<div class="tab ${id === activeDevice ? 'active' : ''}" onclick="selectDevice('${id}')">
+      ${MOTOR_SVG(themeColor, 16)}
       <span class="dot ${online ? 'online' : ''}"></span>${id}
     </div>`;
   }).join("");
@@ -449,10 +697,21 @@ function selectDevice(id) {
 
 function renderPanels() {
   const panel = document.getElementById("panels");
-  if (!activeDevice) {
-    panel.innerHTML = `<div class="panel"><p>কোন ডিভাইস নেই। Settings থেকে যোগ করুন।</p></div>`;
+  const themeColor = getComputedStyle(document.documentElement).getPropertyValue('--light').trim() || "#00d400";
+
+  // 🔴 EMPTY STATE
+  if (!activeDevice || devices.length === 0) {
+    panel.innerHTML = `
+      <div class="panel empty-state">
+        ${MOTOR_SVG(themeColor, 80)}
+        <p>এখনো কোনো ডিভাইস যোগ করা হয়নি</p>
+        <p style="font-size:13px;color:#666">Settings ⚙️ থেকে একটি Device ID যোগ করুন</p>
+        <button class="add-btn" onclick="openSettings()">+ Add Device</button>
+      </div>
+    `;
     return;
   }
+
   const s = deviceStates[activeDevice];
   const online = s.online;
 
@@ -476,7 +735,7 @@ function renderPanels() {
 
   panel.innerHTML = `
     <div class="panel">
-      <h3>📟 Device: ${activeDevice}</h3>
+      <h3>${MOTOR_SVG(themeColor, 24)} Device: ${activeDevice}</h3>
       <div class="esp-line">
         ESP Status :
         <span class="status" style="background:${online ? 'lime' : 'red'}"></span>
@@ -501,9 +760,29 @@ function renderPanels() {
   `;
 }
 
+/* ================= THEME UI ================= */
+function renderThemeGrid() {
+  const grid = document.getElementById("themeGrid");
+  if (!grid) return;
+  const active = localStorage.getItem(THEME_KEY) || "green";
+  grid.innerHTML = Object.entries(THEMES).map(([key, t]) => `
+    <div class="theme-swatch ${key === active ? 'active' : ''}"
+         style="background:linear-gradient(135deg, ${t.primary}, ${t.light})"
+         onclick="changeTheme('${key}')"
+         title="${t.name}">
+      <span>${t.name}</span>
+    </div>
+  `).join("");
+}
+
+function changeTheme(key) {
+  applyTheme(key);
+}
+
 /* ================= SETTINGS MODAL ================= */
 function openSettings() {
   renderDeviceList();
+  renderThemeGrid();
   document.getElementById("settingsModal").classList.add("show");
 }
 function closeSettings() {
