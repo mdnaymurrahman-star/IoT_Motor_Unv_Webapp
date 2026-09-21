@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My-Motor Dashboard</title>
+<script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+<style>
+* { box-sizing: border-box; }
+body {
+  background: #111;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+/* LOGIN SCREEN */
+#loginScreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+.login-box {
+  background: #1e1e1e;
+  padding: 35px 25px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 0 25px rgba(0,200,0,0.2);
+}
+.login-box h2 {
+  margin: 0 0 25px;
+  color: #00d400;
+}
+.login-box input {
+  width: 100%;
+  padding: 14px;
+  margin: 8px 0;
+  border-radius: 10px;
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: white;
+  font-size: 16px;
+}
+.login-box button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 15px;
+  border-radius: 10px;
+  border: none;
+  background: #00b300;
+  color: white;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.login-box button:active { background: #006600; }
+#loginError {
+  color: #ff4444;
+  margin-top: 10px;
+  min-height: 20px;
+  font-size: 14px;
+}
+
+/* DASHBOARD */
+#dashboard { display: none; padding-bottom: 40px; }
+
+.header {
+  background: #1a1a1a;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #00b300;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header h2 { margin: 0; font-size: 18px; }
+.header-btns button {
+  background: #333;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-left: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.header-btns button:active { background: #555; }
+.header-btns .logout { background: #cc0000; }
+
+/* DEVICE TABS */
+.tabs {
+  display: flex;
+  overflow-x: auto;
+  background: #1a1a1a;
+  padding: 8px;
+  gap: 6px;
+}
+.tab {
+  padding: 8px 16px;
+  background: #333;
+  border-radius: 20px;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+.tab.active {
+  background: #00b300;
+  border-color: #00ff00;
+}
+.tab .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: red;
+  margin-right: 6px;
+}
+.tab .dot.online { background: lime; }
+
+/* DEVICE PANEL */
+.panel { padding: 15px; }
+.panel h3 { margin: 5px 0 15px; color: #00d400; }
+.esp-line { margin-bottom: 15px; font-size: 15px; }
+
+.status {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-block;
+  background: red;
+  vertical-align: middle;
+}
+
+.btn {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  border: none;
+  font-size: 17px;
+  font-weight: bold;
+  color: white;
+  margin: 10px;
+  cursor: pointer;
+}
+.green { background: #00b300; }
+.redbtn { background: #cc0000; }
+.green:active { background: #006600; }
+.redbtn:active { background: #800000; }
+
+.indicator {
+  width: 100%;
+  max-width: 400px;
+  margin: 12px auto;
+  padding: 18px;
+  font-size: 18px;
+  border-radius: 14px;
+  background: #333;
+}
+.high { background: #b30000; }
+.low  { background: #006600; }
+.wait { background: #444; }
+
+/* SETTINGS MODAL */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal.show { display: flex; }
+.modal-box {
+  background: #1e1e1e;
+  padding: 25px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 380px;
+}
+.modal-box h3 { margin: 0 0 18px; color: #00d400; }
+.modal-box label { display: block; text-align: left; font-size: 13px; margin: 10px 0 4px; color: #aaa; }
+.modal-box input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: white;
+  font-size: 15px;
+}
+.modal-box .row { display: flex; gap: 10px; margin-top: 18px; }
+.modal-box .row button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  color: white;
+}
+.save-btn { background: #00b300; }
+.cancel-btn { background: #555; }
+
+.device-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #2a2a2a;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin: 8px 0;
+  font-size: 14px;
+}
+.device-list-item button {
+  background: #cc0000;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h2>🔐 Login</h2>
+    <input type="text" id="username" placeholder="Username" autocomplete="off">
+    <input type="password" id="password" placeholder="Password" autocomplete="off">
+    <button onclick="doLogin()">LOGIN</button>
+    <div id="loginError"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="header">
+    <h2>⚡ My-Motor</h2>
+    <div class="header-btns">
+      <button onclick="openSettings()">⚙️ Settings</button>
+      <button class="logout" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="panels"></div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal" id="settingsModal">
+  <div class="modal-box">
+    <h3>⚙️ Device Settings</h3>
+    <label>Add / Update Device Unique ID</label>
+    <input type="text" id="newDeviceId" placeholder="e.g. naim02" autocomplete="off">
+    <div class="row">
+      <button class="cancel-btn" onclick="closeSettings()">Cancel</button>
+      <button class="save-btn" onclick="addDevice()">Add Device</button>
+    </div>
+
+    <label style="margin-top:22px;">Saved Devices</label>
+    <div id="deviceList"></div>
+  </div>
+</div>
+
+<script>
+/* ================= CONFIG ================= */
+const LOGIN_USER = "Naim";
+const LOGIN_PASS = "12345678";
+const STORAGE_KEY = "mymotor_devices";
+
+/* ================= STATE ================= */
+let devices = [];               // array of device ids
+let deviceStates = {};          // { id: { online, in1, in2, in3 } }
+let activeDevice = null;
+let client = null;
+
+/* ================= LOGIN ================= */
+function doLogin() {
+  const u = document.getElementById("username").value.trim();
+  const p = document.getElementById("password").value.trim();
+  if (u === LOGIN_USER && p === LOGIN_PASS) {
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    sessionStorage.setItem("mymotor_logged", "1");
+    initDashboard();
+  } else {
+    document.getElementById("loginError").innerText = "❌ ভুল ইউজারনেম বা পাসওয়ার্ড";
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem("mymotor_logged");
+  location.reload();
+}
+
+/* Auto-login if session exists */
+window.addEventListener("load", () => {
+  if (sessionStorage.getItem("mymotor_logged") === "1") {
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    initDashboard();
+  }
+  document.getElementById("password").addEventListener("keypress", e => {
+    if (e.key === "Enter") doLogin();
+  });
+});
+
+/* ================= DEVICE MANAGEMENT ================= */
+function loadDevices() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  devices = raw ? JSON.parse(raw) : ["naim02"];
+  if (!devices.includes("naim02")) devices.unshift("naim02");
+}
+
+function saveDevices() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
+}
+
+function addDevice() {
+  const id = document.getElementById("newDeviceId").value.trim().toLowerCase();
+  if (!id) return alert("Unique ID লিখুন");
+  if (!/^[a-z0-9_\-]+$/.test(id)) return alert("শুধু a-z, 0-9, _ , - ব্যবহার করুন");
+  if (devices.includes(id)) return alert("এই Device আগে থেকেই আছে");
+
+  devices.push(id);
+  saveDevices();
+  subscribeDevice(id);
+  document.getElementById("newDeviceId").value = "";
+  renderTabs();
+  renderPanels();
+  renderDeviceList();
+}
+
+function removeDevice(id) {
+  if (!confirm(`"${id}" ডিভাইসটি মুছে ফেলবেন?`)) return;
+  devices = devices.filter(d => d !== id);
+  saveDevices();
+  if (activeDevice === id) activeDevice = devices[0] || null;
+  renderTabs();
+  renderPanels();
+  renderDeviceList();
+}
+
+function renderDeviceList() {
+  const list = document.getElementById("deviceList");
+  list.innerHTML = devices.map(id => `
+    <div class="device-list-item">
+      <span>${id}</span>
+      <button onclick="removeDevice('${id}')">Delete</button>
+    </div>
+  `).join("");
+}
+
+/* ================= MQTT ================= */
+function initDashboard() {
+  loadDevices();
+  devices.forEach(id => {
+    deviceStates[id] = { online: false, in1: null, in2: null, in3: null };
+  });
+  activeDevice = devices[0];
+  renderTabs();
+  renderPanels();
+  renderDeviceList();
+  connectMQTT();
+}
+
+function connectMQTT() {
+  client = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
+
+  client.on("connect", () => {
+    devices.forEach(id => subscribeDevice(id));
+  });
+
+  client.on("close", () => {
+    devices.forEach(id => {
+      deviceStates[id].online = false;
+      deviceStates[id].in1 = null;
+      deviceStates[id].in2 = null;
+      deviceStates[id].in3 = null;
+    });
+    renderTabs();
+    renderPanels();
+  });
+
+  client.on("message", (topic, message) => {
+    const msg = message.toString();
+    const parts = topic.split("/");
+    if (parts.length !== 2) return;
+    const devId = parts[0];
+    const channel = parts[1];
+
+    if (!deviceStates[devId]) return;
+
+    if (channel === "status") {
+      deviceStates[devId].online = (msg === "ONLINE");
+    }
+    else if (channel === "input1") deviceStates[devId].in1 = msg;
+    else if (channel === "input2") deviceStates[devId].in2 = msg;
+    else if (channel === "input3") deviceStates[devId].in3 = msg;
+
+    renderTabs();
+    if (devId === activeDevice) renderPanels();
+  });
+}
+
+function subscribeDevice(id) {
+  if (!client || !client.connected) return;
+  ["status", "input1", "input2", "input3"].forEach(ch => {
+    client.subscribe(`${id}/${ch}`);
+  });
+}
+
+function send(deviceId, relay) {
+  if (!client) return;
+  client.publish(`${deviceId}/${relay}`, "ON");
+}
+
+/* ================= UI RENDER ================= */
+function renderTabs() {
+  const tabs = document.getElementById("tabs");
+  tabs.innerHTML = devices.map(id => {
+    const online = deviceStates[id]?.online;
+    return `<div class="tab ${id === activeDevice ? 'active' : ''}" onclick="selectDevice('${id}')">
+      <span class="dot ${online ? 'online' : ''}"></span>${id}
+    </div>`;
+  }).join("");
+}
+
+function selectDevice(id) {
+  activeDevice = id;
+  renderTabs();
+  renderPanels();
+}
+
+function renderPanels() {
+  const panel = document.getElementById("panels");
+  if (!activeDevice) {
+    panel.innerHTML = `<div class="panel"><p>কোন ডিভাইস নেই। Settings থেকে যোগ করুন।</p></div>`;
+    return;
+  }
+  const s = deviceStates[activeDevice];
+  const online = s.online;
+
+  let in1Text = "সুরক্ষা ব্যাবস্থা : WAITING...", in1Cls = "wait";
+  let in2Text = "মটর স্টেট : WAITING...", in2Cls = "wait";
+  let in3Text = "পানি স্টেট : WAITING...", in3Cls = "wait";
+
+  if (!online) {
+    in1Text = in2Text = in3Text = "কারেন্ট নেই";
+    in1Cls = in2Cls = in3Cls = "wait";
+  } else {
+    if (s.in1 === "HIGH") { in1Text = "মোটর চালু করার জন্য প্রস্তুত না"; in1Cls = "high"; }
+    else if (s.in1 === "LOW") { in1Text = "মোটর চালু করার জন্য প্রস্তুত"; in1Cls = "low"; }
+
+    if (s.in2 === "HIGH") { in2Text = "মোটর চালু না"; in2Cls = "high"; }
+    else if (s.in2 === "LOW") { in2Text = "মোটর চালু"; in2Cls = "low"; }
+
+    if (s.in3 === "HIGH") { in3Text = "পানি উঠতেছে না"; in3Cls = "high"; }
+    else if (s.in3 === "LOW") { in3Text = "পানি উঠতেছে"; in3Cls = "low"; }
+  }
+
+  panel.innerHTML = `
+    <div class="panel">
+      <h3>📟 Device: ${activeDevice}</h3>
+      <div class="esp-line">
+        ESP Status :
+        <span class="status" style="background:${online ? 'lime' : 'red'}"></span>
+      </div>
+
+      <button class="btn green"
+        ontouchstart="send('${activeDevice}','relay1')"
+        onmousedown="send('${activeDevice}','relay1')">
+        START
+      </button>
+
+      <button class="btn redbtn"
+        ontouchstart="send('${activeDevice}','relay2')"
+        onmousedown="send('${activeDevice}','relay2')">
+        STOP
+      </button>
+
+      <div class="indicator ${in1Cls}">${in1Text}</div>
+      <div class="indicator ${in2Cls}">${in2Text}</div>
+      <div class="indicator ${in3Cls}">${in3Text}</div>
+    </div>
+  `;
+}
+
+/* ================= SETTINGS MODAL ================= */
+function openSettings() {
+  renderDeviceList();
+  document.getElementById("settingsModal").classList.add("show");
+}
+function closeSettings() {
+  document.getElementById("settingsModal").classList.remove("show");
+}
+</script>
+</body>
+</html>
