@@ -22,7 +22,7 @@ body {
   transition: background-color 0.3s;
 }
 
-/* Overlay when logo background is set */
+/* Overlay when custom bg is set */
 body.has-bg::before {
   content: "";
   position: fixed;
@@ -31,53 +31,9 @@ body.has-bg::before {
   z-index: -1;
 }
 
-/* ============== LOGIN SCREEN ============== */
-#loginScreen {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 20px;
-  position: relative;
-  z-index: 1;
-}
-.login-box {
-  background: rgba(30,30,30,0.95);
-  padding: 35px 25px;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 360px;
-  box-shadow: 0 0 25px rgba(0,200,0,0.2);
-}
-.login-box h2 { margin: 0 0 25px; color: #00d400; }
-.login-box input {
-  width: 100%;
-  padding: 14px;
-  margin: 8px 0;
-  border-radius: 10px;
-  border: 1px solid #444;
-  background: #2a2a2a;
-  color: white;
-  font-size: 16px;
-}
-.login-box button {
-  width: 100%;
-  padding: 14px;
-  margin-top: 15px;
-  border-radius: 10px;
-  border: none;
-  background: #00b300;
-  color: white;
-  font-size: 17px;
-  font-weight: bold;
-  cursor: pointer;
-}
-.login-box button:active { background: #006600; }
-#loginError { color: #ff4444; margin-top: 10px; min-height: 20px; font-size: 14px; }
+#dashboard { padding-bottom: 40px; position: relative; z-index: 1; }
 
-/* ============== DASHBOARD ============== */
-#dashboard { display: none; padding-bottom: 40px; position: relative; z-index: 1; }
-
+/* ============== HEADER ============== */
 .header {
   background: rgba(26,26,26,0.92);
   padding: 10px 14px;
@@ -97,7 +53,6 @@ body.has-bg::before {
   align-items: center;
   gap: 8px;
 }
-.header h2 svg { width: 26px; height: 26px; }
 
 .settings-icon {
   background: #333;
@@ -140,10 +95,7 @@ body.has-bg::before {
   align-items: center;
   gap: 6px;
 }
-.tab.active {
-  background: #00b300;
-  border-color: #00ff00;
-}
+.tab.active { background: #00b300; border-color: #00ff00; }
 .tab .dot {
   display: inline-block;
   width: 8px;
@@ -166,7 +118,6 @@ body.has-bg::before {
   gap: 8px;
   font-size: 17px;
 }
-.panel h3 .motor-icon { width: 24px; height: 24px; }
 .esp-line { margin-bottom: 15px; font-size: 15px; }
 
 .status {
@@ -303,9 +254,19 @@ body.has-bg::before {
 }
 .save-btn { background: #00b300; }
 .cancel-btn { background: #555; }
-.danger-btn { background: #cc0000; width: 100%; padding: 12px; border-radius: 8px; border: none; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 14px; }
+.danger-btn {
+  background: #cc0000;
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 14px;
+}
 
-/* Theme swatches */
 .theme-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -355,24 +316,13 @@ body.has-bg::before {
 
 <body>
 
-<!-- ================= LOGIN SCREEN ================= -->
-<div id="loginScreen">
-  <div class="login-box">
-    <h2>🔐 Login</h2>
-    <input type="text" id="username" placeholder="Username" autocomplete="off">
-    <input type="password" id="password" placeholder="Password" autocomplete="off">
-    <button onclick="doLogin()">LOGIN</button>
-    <div id="loginError"></div>
-  </div>
-</div>
-
 <!-- ================= DASHBOARD ================= -->
 <div id="dashboard">
   <div class="header">
     <button class="settings-icon" onclick="openSettings()" title="Settings">⚙️</button>
     <h2>
-      <!-- PUMP/MOTOR ICON (replaced voltage/lightning) -->
-      <svg class="motor-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Motor/Pump Icon -->
+      <svg class="motor-icon" style="width:26px;height:26px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="12" cy="12" r="8" stroke="#00d400" stroke-width="2"/>
         <circle cx="12" cy="12" r="3" fill="#00d400"/>
         <path d="M12 4 L12 1 M12 23 L12 20 M4 12 L1 12 M23 12 L20 12" stroke="#00d400" stroke-width="2" stroke-linecap="round"/>
@@ -395,7 +345,7 @@ body.has-bg::before {
       <button class="close-x" onclick="closeSettings()">✕</button>
     </h3>
 
-    <!-- ---- DEVICE MANAGEMENT ---- -->
+    <!-- DEVICE MANAGEMENT -->
     <span class="section-title">📟 Device Management</span>
     <label>Add Device by Unique ID</label>
     <input type="text" id="newDeviceId" placeholder="e.g. naim02" autocomplete="off">
@@ -407,32 +357,25 @@ body.has-bg::before {
     <label style="margin-top:16px;">Saved Devices</label>
     <div id="deviceList"></div>
 
-    <!-- ---- THEME ---- -->
+    <!-- THEME -->
     <div class="section">
       <span class="section-title">🎨 Theme</span>
       <label>Choose Color Theme</label>
       <div class="theme-grid" id="themeGrid"></div>
     </div>
 
-    <!-- ---- BACKGROUND LOGO ---- -->
+    <!-- BACKGROUND -->
     <div class="section">
       <span class="section-title">🖼️ Background Logo</span>
       <label>Upload Custom Background Image</label>
       <input type="file" id="bgUpload" accept="image/*" onchange="uploadBg(event)">
       <button class="danger-btn" onclick="removeBg()">🗑️ Remove Background</button>
     </div>
-
-    <!-- ---- LOGOUT ---- -->
-    <div class="section">
-      <button class="danger-btn" onclick="doLogout()">🚪 Logout</button>
-    </div>
   </div>
 </div>
 
 <script>
 /* ================= CONFIG ================= */
-const LOGIN_USER = "Naim";
-const LOGIN_PASS = "12345678";
 const STORAGE_KEY = "mymotor_devices";
 const THEME_KEY   = "mymotor_theme";
 const BG_KEY      = "mymotor_bg";
@@ -455,7 +398,7 @@ const THEMES = {
   dark:   { name: "Dark",   primary: "#666666", light: "#999999", dark: "#333333", bg: "#0a0a0a" }
 };
 
-/* ================= MOTOR SVG (Reusable) ================= */
+/* ================= MOTOR SVG ================= */
 const MOTOR_SVG = (color, size = 16) => `
   <svg class="motor-icon" style="width:${size}px;height:${size}px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="12" cy="12" r="8" stroke="${color}" stroke-width="2"/>
@@ -465,7 +408,7 @@ const MOTOR_SVG = (color, size = 16) => `
   </svg>
 `;
 
-/* ================= THEME APPLICATION ================= */
+/* ================= THEME ================= */
 function applyTheme(key) {
   const t = THEMES[key] || THEMES.green;
   document.documentElement.style.setProperty("--primary", t.primary);
@@ -474,14 +417,11 @@ function applyTheme(key) {
   document.body.style.background = t.bg;
   localStorage.setItem(THEME_KEY, key);
 
-  // Apply dynamically
   document.querySelectorAll(".green").forEach(el => el.style.background = t.primary);
-  document.querySelectorAll(".redbtn").forEach(el => el.style.background = "#cc0000");
-  document.querySelectorAll(".save-btn, .empty-state .add-btn, .login-box button").forEach(el => el.style.background = t.primary);
-  document.querySelectorAll(".tab.active").forEach(el => { el.style.background = t.primary; });
+  document.querySelectorAll(".save-btn, .empty-state .add-btn").forEach(el => el.style.background = t.primary);
+  document.querySelectorAll(".tab.active").forEach(el => el.style.background = t.primary);
   document.querySelectorAll(".header").forEach(el => el.style.borderBottomColor = t.primary);
-  document.querySelectorAll(".panel h3, .modal-box h3, .section-title, .login-box h2").forEach(el => el.style.color = t.light);
-  document.querySelectorAll(".header h2 svg").forEach(el => el.innerHTML = MOTOR_SVG(t.light, 26).replace('class="motor-icon"','').trim());
+  document.querySelectorAll(".panel h3, .modal-box h3, .section-title").forEach(el => el.style.color = t.light);
 
   renderTabs();
   renderPanels();
@@ -498,7 +438,6 @@ function applyBg(dataUrl) {
     document.body.classList.remove("has-bg");
   }
 }
-
 function uploadBg(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -515,60 +454,20 @@ function uploadBg(e) {
   };
   reader.readAsDataURL(file);
 }
-
 function removeBg() {
   localStorage.removeItem(BG_KEY);
   applyBg(null);
   document.getElementById("bgUpload").value = "";
 }
 
-/* ================= LOGIN ================= */
-function doLogin() {
-  const u = document.getElementById("username").value.trim();
-  const p = document.getElementById("password").value.trim();
-  if (u === LOGIN_USER && p === LOGIN_PASS) {
-    document.getElementById("loginScreen").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
-    sessionStorage.setItem("mymotor_logged", "1");
-    initDashboard();
-  } else {
-    document.getElementById("loginError").innerText = "❌ ভুল ইউজারনেম বা পাসওয়ার্ড";
-  }
-}
-
-function doLogout() {
-  sessionStorage.removeItem("mymotor_logged");
-  location.reload();
-}
-
-window.addEventListener("load", () => {
-  // Load theme + bg BEFORE login
-  const savedTheme = localStorage.getItem(THEME_KEY) || "green";
-  const savedBg = localStorage.getItem(BG_KEY);
-  applyTheme(savedTheme);
-  applyBg(savedBg);
-
-  if (sessionStorage.getItem("mymotor_logged") === "1") {
-    document.getElementById("loginScreen").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
-    initDashboard();
-  }
-  document.getElementById("password").addEventListener("keypress", e => {
-    if (e.key === "Enter") doLogin();
-  });
-});
-
 /* ================= DEVICE MANAGEMENT ================= */
 function loadDevices() {
-  // 🔴 NO DEFAULT DEVICE — starts blank
   const raw = localStorage.getItem(STORAGE_KEY);
   devices = raw ? JSON.parse(raw) : [];
 }
-
 function saveDevices() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
 }
-
 function addDevice() {
   const id = document.getElementById("newDeviceId").value.trim().toLowerCase();
   if (!id) return alert("Unique ID লিখুন");
@@ -580,14 +479,12 @@ function addDevice() {
   saveDevices();
   subscribeDevice(id);
   document.getElementById("newDeviceId").value = "";
-
   if (!activeDevice) activeDevice = id;
 
   renderTabs();
   renderPanels();
   renderDeviceList();
 }
-
 function removeDevice(id) {
   if (!confirm(`"${id}" ডিভাইসটি মুছে ফেলবেন?`)) return;
   devices = devices.filter(d => d !== id);
@@ -598,7 +495,6 @@ function removeDevice(id) {
   renderPanels();
   renderDeviceList();
 }
-
 function renderDeviceList() {
   const list = document.getElementById("deviceList");
   if (devices.length === 0) {
@@ -628,11 +524,7 @@ function initDashboard() {
 
 function connectMQTT() {
   client = mqtt.connect("wss://broker.hivemq.com:8884/mqtt");
-
-  client.on("connect", () => {
-    devices.forEach(id => subscribeDevice(id));
-  });
-
+  client.on("connect", () => devices.forEach(id => subscribeDevice(id)));
   client.on("close", () => {
     devices.forEach(id => {
       if (!deviceStates[id]) return;
@@ -644,33 +536,25 @@ function connectMQTT() {
     renderTabs();
     renderPanels();
   });
-
   client.on("message", (topic, message) => {
     const msg = message.toString();
     const parts = topic.split("/");
     if (parts.length !== 2) return;
     const devId = parts[0];
     const channel = parts[1];
-
     if (!deviceStates[devId]) return;
-
     if (channel === "status") deviceStates[devId].online = (msg === "ONLINE");
     else if (channel === "input1") deviceStates[devId].in1 = msg;
     else if (channel === "input2") deviceStates[devId].in2 = msg;
     else if (channel === "input3") deviceStates[devId].in3 = msg;
-
     renderTabs();
     if (devId === activeDevice) renderPanels();
   });
 }
-
 function subscribeDevice(id) {
   if (!client || !client.connected) return;
-  ["status", "input1", "input2", "input3"].forEach(ch => {
-    client.subscribe(`${id}/${ch}`);
-  });
+  ["status", "input1", "input2", "input3"].forEach(ch => client.subscribe(`${id}/${ch}`));
 }
-
 function send(deviceId, relay) {
   if (!client) return;
   client.publish(`${deviceId}/${relay}`, "ON");
@@ -688,18 +572,15 @@ function renderTabs() {
     </div>`;
   }).join("");
 }
-
 function selectDevice(id) {
   activeDevice = id;
   renderTabs();
   renderPanels();
 }
-
 function renderPanels() {
   const panel = document.getElementById("panels");
   const themeColor = getComputedStyle(document.documentElement).getPropertyValue('--light').trim() || "#00d400";
 
-  // 🔴 EMPTY STATE
   if (!activeDevice || devices.length === 0) {
     panel.innerHTML = `
       <div class="panel empty-state">
@@ -774,12 +655,9 @@ function renderThemeGrid() {
     </div>
   `).join("");
 }
+function changeTheme(key) { applyTheme(key); }
 
-function changeTheme(key) {
-  applyTheme(key);
-}
-
-/* ================= SETTINGS MODAL ================= */
+/* ================= SETTINGS ================= */
 function openSettings() {
   renderDeviceList();
   renderThemeGrid();
@@ -788,6 +666,15 @@ function openSettings() {
 function closeSettings() {
   document.getElementById("settingsModal").classList.remove("show");
 }
+
+/* ================= INIT (No Login) ================= */
+window.addEventListener("load", () => {
+  const savedTheme = localStorage.getItem(THEME_KEY) || "green";
+  const savedBg = localStorage.getItem(BG_KEY);
+  applyTheme(savedTheme);
+  applyBg(savedBg);
+  initDashboard();
+});
 </script>
 </body>
 </html>
